@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import supabase from '../client'
 
 
-const CreatePost = () => {
+const CreatePost = ( {posts, setPosts, upvotePost, downvotePost, addPost, deletePost} ) => {
     const [title, setTitle] = useState('')
     const [content, setContent] = useState('')
     const [image, setImage] = useState('')
@@ -15,6 +15,7 @@ const CreatePost = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true);
+
         const { data, error } = await supabase.from('posts').insert([
             {
                 title,
@@ -24,13 +25,16 @@ const CreatePost = () => {
                 downvotes: 0,
                 created_at: new Date().toISOString(),
             }
-        ])        
+
+        ]).select()
+
         setLoading(false);
 
         if (error) {
             console.log('error', error)
         } else {
             console.log('data', data)
+            // setPosts([...posts, data])
             navigate('/post/' + data[0].id)
         }
     }
@@ -38,15 +42,15 @@ const CreatePost = () => {
   return (
     <div>
         <h1>Create Post</h1>
-        <form onSubmit={handleSubmit}> 
+        <form onSubmit={handleSubmit} className='create-post-form'> 
             <label>Post Title</label>
-            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} />
+            <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} className='create-post-field' />
 
             <label>Post Content</label>
-            <textarea required value={content} onChange={(e) => setContent(e.target.value)} />
+            <textarea required value={content} onChange={(e) => setContent(e.target.value)} className='create-post-field'/>
 
-            <label>Post Image</label>
-            <input type="text" value={image} onChange={(e) => setImage(e.target.value)} />
+            <label>Post Image (URL)</label>
+            <input type="text" value={image} onChange={(e) => setImage(e.target.value)} className='create-post-field'/>
 
             {!loading && <button>Create Post</button>}
             {loading && <button disabled>Creating Post...</button>}

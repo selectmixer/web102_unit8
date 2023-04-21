@@ -1,15 +1,17 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { Link, BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import supabase from '../client'
 
-
-const Post = () => {
+const Post = ({posts, setPosts, upvotePost, downvotePost, addPost, deletePost}) => {
     const { id } = useParams()
     const [post, setPost] = useState(null)
-    const [posts, setPosts] = useState([])
     const [comments, setComments] = useState([])
-    const [newComment, setnewComment] = useState('')
+    const [newComment, setNewComment] = useState('')
+    const [count, setCount] = useState(0)
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPost = async () => {
@@ -27,7 +29,7 @@ const Post = () => {
                 .from('comments')
                 .select('*')
                 .eq('post_id', id)
-            console.log (comments)
+            // console.log (comments)
             if (error) console.log('error', error)
             else setComments(comments)
         }
@@ -36,112 +38,74 @@ const Post = () => {
         fetchComments()
     }, [id, posts])
 
-    const handleSubmit = async (e) => {
+
+    const handleSubmitComment = async (e) => {
         e.preventDefault()
+        let data = { post_id: id, content: newComment, created_at: new Date().toISOString(), count: count }
+        setCount(count + 1)
         let { data: comment, error } = await supabase
             .from('comments')
             .insert([
                 {
                     post_id: id,
+                    count: count,
                     content: newComment,
                     created_at: new Date().toISOString(),
                 }
-            ])
+            ]).select()
+
         if (error) console.log('error', error)
         else {
-            setComments([...comments, comment])
-            setnewComment('')
+            console.log(data, 'data')
+            setComments([...comments, data])
+            setNewComment('')
         }
     }
 
-    const upvotePost = async (id) => {
-        let { data: post, error } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('id', id)
-            .single()
-        let newUpvotes = post.upvotes + 1
-        if (error) console.log('error', error)
-        else {
-            let { data: post, error } = await supabase
-                .from('posts')
-                .update({ upvotes: newUpvotes })
-                .match({ id })
-            if (error) console.log('error', error)
-            // re-render the post
-            else {
-                let updatedPosts = posts.map((post) => {
-                    if (post.id === id) {
-                        return { ...post, upvotes: post.upvotes + 1 }
-                    }
-                    return post
-                })
-                setPosts(updatedPosts)
-            }
-        }
-    }
-
-       
-
-
-
-    const downvotePost = async (id) => {
-        let { data: post, error } = await supabase
-            .from('posts')
-            .select('*')
-            .eq('id', id)
-            .single()
-        let newDownvotes = post.downvotes + 1
-        if (error) console.log('error', error)
-        else {
-            let { data: post, error } = await supabase
-                .from('posts')
-                .update({ downvotes: newDownvotes })
-                .match({ id })
-            if (error) console.log('error', error)
-            else {
-                let updatedPosts = posts.map((post) => {
-                    if (post.id === id) {
-                        return { ...post, downvotes: post.downvotes + 1 }
-                    }
-                    return post
-                })
-                setPosts(updatedPosts)
-            }
-        }
-    }
-
+    const handleDelete = async (id) => {
+        deletePost(id)
+        navigate('/')
+      };
 
     if (!post) return <div>Loading...</div>
 
 
   return (
-    <div>Post
+    <div>
+        <Link to="/"> <button>Home</button> </Link>
+        <button onClick={() => handleDelete(post.id)}>Delete Post</button>
         <h1>{post.title}</h1>
-        {post.image && <img src={post.image} alt="post" />}
+        <div className='post-image-wrapper' >
+        {post.image_url && <img className='post-image' src={post.image_url} alt="post" />}
+        </div>
         <p>{post.content}</p>
         <p>{post.upvotes} upvotes</p>
         <p>{post.downvotes} downvotes</p>
-        <button onClick={() => upvotePost(post.id)}>Upvote</button>
-        <button onClick={() => downvotePost(post.id)}>Downvote</button>
+        <button onClick={() => upvotePost(post.id)}> {post.upvotes} Upvote</button>
+        <button onClick={() => downvotePost(post.id)}> {post.downvotes} Downvote</button>
 
-        <h2>Comments</h2>
-        <div className="comments">
-            {comments.map((comment) => (
-                <div key={comment.id}>
-                    <p>{comment.content}</p>
-                </div>
-            ))}
-
-            <form onSubmit={handleSubmit}>
-                <input type="text" value={newComment} onChange={(e) => setnewComment(e.target.value)} />
-                <button type="submit">Add Comment</button>
-            </form>
-
+        <h3>Comments ({comments.length})</h3>
+      {comments.map((comment) => (
+        <div key={comment.id} className='comment-row'>
+          <p className='comment-text'>{comment.content}</p>
+          <p className='comment-text'>{new Date(comment.created_at).toLocaleDateString()}</p>
         </div>
+      ))}
 
+      <form onSubmit={handleSubmitComment}>
+        <label htmlFor="new-comment">Leave a comment:</label>
+        <br />
+        <textarea
+          id="new-comment"
+          value={newComment}
+          onChange={(event) => setNewComment(event.target.value)}
+          className="comment-input"
+        ></textarea>
+        <br />
+        <button type="submit">Submit</button>
+      </form>
     </div>
-  )
-}
+  );
+};
 
-export default Post
+export default Post;

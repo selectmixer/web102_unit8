@@ -35,40 +35,60 @@ function App() {
     else setPosts([...posts, post]);
   };
 
+
   const upvotePost = async (id) => {
     let { data: post, error } = await supabase
-      .from('posts')
-      .update({ upvotes: supabase.raw('upvotes + 1') })
-      .match({ id });
-    if (error) console.log('error', error);
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single()
+    let newUpvotes = post.upvotes + 1
+    if (error) console.log('error', error)
     else {
-      let updatedPosts = posts.map((post) => {
-        if (post.id === id) {
-          return { ...post, upvotes: post.upvotes + 1 };
+        let { data: post, error } = await supabase
+            .from('posts')
+            .update({ upvotes: newUpvotes })
+            .match({ id })
+        if (error) console.log('error', error)
+        // re-render the post
+        else {
+            let updatedPosts = posts.map((post) => {
+                if (post.id === id) {
+                    return { ...post, upvotes: post.upvotes + 1 }
+                }
+                return post
+            })
+            setPosts(updatedPosts)
         }
-        return post;
-      });
-      setPosts(updatedPosts);
     }
-  };
+}
 
-  const downvotePost = async (id) => {
+const downvotePost = async (id) => {
     let { data: post, error } = await supabase
-      .from('posts')
-      .update({ downvotes: supabase.raw('downvotes + 1') })
-      .match({ id });
-    if (error) console.log('error', error);
+        .from('posts')
+        .select('*')
+        .eq('id', id)
+        .single()
+    let newDownvotes = post.downvotes + 1
+    if (error) console.log('error', error)
     else {
-      let updatedPosts = posts.map((post) => {
-        if (post.id === id) {
-          return { ...post, downvotes: post.downvotes + 1 };
-        }
-        return post;
-      });
-      setPosts(updatedPosts);
-    }
-  };
+        let { data: post, error } = await supabase
+            .from('posts')
+            .update({ downvotes: newDownvotes })
+            .match({ id })
+        if (error) console.log('error', error)
+        else {
 
+            let updatedPosts = posts.map((post) => {
+                if (post.id === id) {
+                    return { ...post, downvotes: post.downvotes + 1 }
+                }
+                return post
+            })
+            setPosts(updatedPosts)
+        }
+    }
+}
   const deletePost = async (id) => {
     let { error } = await supabase.from('posts').delete().match({ id });
     if (error) console.log('error', error);
@@ -86,8 +106,10 @@ function App() {
           <Route path="/" 
             element={<Home 
               posts={posts}
+              setPosts={setPosts}
               upvotePost={upvotePost}
               downvotePost={downvotePost}
+              addPost={addPost}
               deletePost={deletePost}
             />}
           ></Route>
@@ -95,16 +117,25 @@ function App() {
 
           <Route path="/create" 
             element={<CreatePost 
-              addPost={addPost} />}
+              posts={posts}
+              setPosts={setPosts}
+              upvotePost={upvotePost}
+              downvotePost={downvotePost}
+              addPost={addPost}
+              deletePost={deletePost}
+            />}
           ></Route>
 
           <Route path="/post/:id" 
             element={<Post 
-              posts={posts} 
-              deletePost={deletePost} 
-              upvotePost={upvotePost} 
-              downvotePost={downvotePost} 
-          />}></Route>
+              posts={posts}
+              setPosts={setPosts}
+              upvotePost={upvotePost}
+              downvotePost={downvotePost}
+              addPost={addPost}
+              deletePost={deletePost}
+            />}
+          ></Route>
           
         </Routes>
       </Router>
