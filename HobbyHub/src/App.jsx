@@ -5,7 +5,9 @@ import supabase from './client'
 
 import Home from './components/Home';
 import CreatePost from './components/CreatePost';
+import EditPost from './components/EditPost';
 import Post from './components/Post';
+
 
 function App() {
   const [posts, setPosts] = useState([])
@@ -123,6 +125,18 @@ const downvotePost = async (id) => {
               downvotePost={downvotePost}
               addPost={addPost}
               deletePost={deletePost}
+            />}
+          ></Route>
+
+          <Route path="/edit/:id"
+            element={<EditPost
+              posts={posts}
+              setPosts={setPosts}
+              upvotePost={upvotePost}
+              downvotePost={downvotePost}
+              addPost={addPost}
+              deletePost={deletePost}
+              fetchPosts={fetchPosts}
             />}
           ></Route>
 

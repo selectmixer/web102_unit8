@@ -73,16 +73,17 @@ const Post = ({posts, setPosts, upvotePost, downvotePost, addPost, deletePost}) 
   return (
     <div>
         <Link to="/"> <button>Home</button> </Link>
+        <Link to={`/edit/${post.id}`}> <button>Edit Post</button> </Link>
         <button onClick={() => handleDelete(post.id)}>Delete Post</button>
         <h1>{post.title}</h1>
         <div className='post-image-wrapper' >
         {post.image_url && <img className='post-image' src={post.image_url} alt="post" />}
         </div>
         <p>{post.content}</p>
-        <p>{post.upvotes} upvotes</p>
-        <p>{post.downvotes} downvotes</p>
-        <button onClick={() => upvotePost(post.id)}> {post.upvotes} Upvote</button>
-        <button onClick={() => downvotePost(post.id)}> {post.downvotes} Downvote</button>
+        <p>{post.upvotes} votes for Raccoons! </p>
+        <p>{post.downvotes} votes for Oreos! </p>
+        <button onClick={() => upvotePost(post.id)}> 🦝 Votes: {post.upvotes} </button>
+        <button onClick={() => downvotePost(post.id)}> 🍪 Votes: {post.downvotes} </button>
 
         <h3>Comments ({comments.length})</h3>
       {comments.map((comment) => (

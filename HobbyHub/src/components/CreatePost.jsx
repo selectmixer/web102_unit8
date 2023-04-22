@@ -52,8 +52,11 @@ const CreatePost = ( {posts, setPosts, upvotePost, downvotePost, addPost, delete
             <label>Post Image (URL)</label>
             <input type="text" value={image} onChange={(e) => setImage(e.target.value)} className='create-post-field'/>
 
-            {!loading && <button>Create Post</button>}
-            {loading && <button disabled>Creating Post...</button>}
+            <div className='create-post-buttons'>
+                {!loading && <button>Create Post</button>}
+                {loading && <button disabled>Creating Post...</button>}
+                <button onClick={() => navigate('/')}>Cancel</button>
+            </div>
         </form>
 
     </div>
