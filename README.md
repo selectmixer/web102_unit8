@@ -2,7 +2,7 @@
 
 Submitted by: David Seo
 
-This web app: A fictional website that allows users to share images of raccoons or cookies to identify and discuss which is which! (RLHF prototype)
+This web app: A fictional website that allows users to share images of raccoons or cookies to identify and discuss which is which (inspired by RLHF tools)!
 
 Time spent: 12 hours spent in total
 
