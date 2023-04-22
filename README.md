@@ -55,7 +55,7 @@ GIF created with LiceCap!
 ## Notes
 
 Describe any challenges encountered while building the app.
-had to make two separate data tables, one for comments and one for posts!
+- Made two separate data tables, one for comments and one for posts!
 
 ## License
 
